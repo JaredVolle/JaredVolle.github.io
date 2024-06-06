@@ -1,5 +1,5 @@
 import React from 'react';
-import './App.css'; // Import the CSS file
+import './spelling-showdown.css'; // Import the CSS file
 
 export default function App() {
 
