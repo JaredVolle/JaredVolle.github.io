@@ -1,109 +1,105 @@
 import React from 'react';
-import './spelling-showdown.css'; // Import the CSS file
+import './App.css'; 
 
 export default function App() {
-
   const [displayLetters, setDisplayLetters] = React.useState("");
   const [isEasyDifficulty, setIsEasyDifficulty] = React.useState(true);
   const [team1Score, setTeam1Score] = React.useState(0);
   const [team2Score, setTeam2Score] = React.useState(0);
   const [player1Turn, setPlayer1Turn] = React.useState(true);
-  const [roundNum, setRoundNum] = React.useState(0);
-  const [displayRules, setDisplayRules] = React.useState(true)
+  const [roundNum, setRoundNum] = React.useState(1);
+  const [displayRules, setDisplayRules] = React.useState(false);
 
-  const [timer, setTimer] = React.useState(10); // Start the timer at __ seconds
-  const [isTimerStarted, setIsTimerStarted] = React.useState(true);
-
-  let timerLength = 5
-
-
+  const [playingWithTimer, setPlayingWithTimer] = React.useState(false);
+  const [timer, setTimer] = React.useState(10);
+  const [isTimerStarted, setIsTimerStarted] = React.useState(false);
+  const [timerLength, setTimerLength] = React.useState(10);
 
   React.useEffect(() => {
-      if (isTimerStarted) {
-          const intervalId = setInterval(() => {
-              setTimer(prevTimer => {
-                  if (prevTimer === 0) {
-                      clearInterval(intervalId); // Turn off timer when it hits zero
-                      setIsTimerStarted(false); // Reset timer started flag
-                  }
-                  return prevTimer > 0 ? prevTimer - 1 : 0; // Decrease timer by 1 second
-              });
-          }, 1000); // Update timer every second (1000 milliseconds)
+    if (isTimerStarted) {
+      const intervalId = setInterval(() => {
+        setTimer(prevTimer => {
+          if (prevTimer === 0) {
+            clearInterval(intervalId);
+            setIsTimerStarted(false);
+          }
+          return prevTimer > 0 ? prevTimer - 1 : 0;
+        });
+      }, 1000);
 
-          return () => {
-              clearInterval(intervalId); // Clean up interval on component unmount
-          };
-      }
+      return () => {
+        clearInterval(intervalId);
+      };
+    }
   }, [isTimerStarted]);
 
   function handleAddLetter() {
-    setTimer(timerLength)
-    setIsTimerStarted(true)
+    setTimer(timerLength);
+    setIsTimerStarted(true);
 
     let newDisplayLetters = displayLetters;
 
     const randomLetterArr = [
-      'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
-      'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
-      'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
-      'y', 'z'
+      'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
+      'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+      'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+      'Y', 'Z'
     ];
+    
     const easyLetterArr = [
-      'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
-      'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 's', 't', 'u'
+      'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
+      'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U'
     ];
 
-    let letterArr = isEasyDifficulty === true ? easyLetterArr : randomLetterArr;
-    
+    let letterArr = isEasyDifficulty ? easyLetterArr : randomLetterArr;
     let randNum = Math.floor(Math.random() * letterArr.length);
     let newLetter = letterArr[randNum];
     newDisplayLetters = displayLetters + newLetter;
-    setDisplayLetters(() => newDisplayLetters);
+    setDisplayLetters(newDisplayLetters);
   }
 
   function resetGame() {
     setDisplayLetters("");
     setTeam1Score(0);
     setTeam2Score(0);
-    setRoundNum(0);
+    setRoundNum(1);
     setPlayer1Turn(true);
-
-    setTimer(timerLength)
-    setIsTimerStarted(false)
+    setTimer(timerLength);
+    setIsTimerStarted(false);
   }
 
   function endTurn() {
-    if (displayLetters.length > 1) { // Make sure user didn't double-click button, otherwise you'd subtract points.
+    if (displayLetters.length > 1) {
       player1Turn ? setTeam1Score(team1Score + displayLetters.length - 1) : setTeam2Score(team2Score + displayLetters.length - 1);
     }
-    setPlayer1Turn(!player1Turn); // Toggle to next player
+    setPlayer1Turn(!player1Turn);
     setDisplayLetters("");
-    setRoundNum(player1Turn ? roundNum + 1 : roundNum); // Increment when P1's turn
-    setTimer(timerLength)
-    setIsTimerStarted(false)
+    setRoundNum(player1Turn ? roundNum : roundNum + 1);
+    setTimer(timerLength);
+    setIsTimerStarted(false);
   }
 
-  // Dynamic style based on player turn
   const containerStyle = {
     textAlign: 'center',
     marginTop: '20px',
     fontFamily: 'Arial, sans-serif',
-    backgroundColor: player1Turn ? '#448da3' : '#e86b6b', // Change background color based on player turn
+    backgroundColor: player1Turn ? '#448da3' : '#e86b6b',
     color: 'white',
     padding: '20px',
     borderRadius: '10px'
   };
 
-  function handleLearnRules () {
-    setDisplayRules(!displayRules)
+  function handleLearnRules() {
+    setDisplayRules(!displayRules);
   }
 
-  const rulesMessage = "At the start of the game, you'll have only one letter. Your team must think of a word that has the letter. EX: A --> 'has'. If you can think of a word, click next letter. Now you'll have A + a new letter, such as 'H'. Now you must think of a word that has both A & H in it, such as 'has'. The turn ends when you cannot think of a word that contains all the letters. You'll receive points for each letter you successfully used and it bcomes the other team's turn. DIFFICULTY: Easy mode does not have Q, W, X, Y, Z. Learn more at Guys With Games: https://www.youtube.com/watch?v=ikJ_Z1RQe24"
+  const rulesMessage = "At the start of the game, you'll have only one letter. Your team must think of a word that has the letter. EX: A --> 'back'. If you can think of a word, click next letter. Now you'll have A + a new letter, such as 'H'. Now you must think of a word that has both A & H in it, such as 'has'. The turn ends when you cannot think of a word that contains all the letters. You'll receive points for each letter you successfully used and it becomes the other team's turn. DIFFICULTY: Easy mode does not have Q, W, X, Y, Z. Learn more at Guys With Games: https://www.youtube.com/watch?v=ikJ_Z1RQe24";
 
   return (
-    <div className="container" style={containerStyle}> {/* Apply dynamic inline style */}
+    <div className="container" style={containerStyle}>
       <h1>Spelling Showdown</h1>
       <h2>Round: {roundNum}</h2>
+
       <div className="scoreboard">
         <div className="score-item">
           <h2>Blue Team</h2>
@@ -117,13 +113,6 @@ export default function App() {
         <div className="score-item">
           <h2>{team2Score}</h2>
         </div>
-      </div>
-      <h2>Current Player: {player1Turn ? "Blue" : "Red"}</h2>
-      <div className="buttons">
-        <button className="add-button" onClick={handleAddLetter}>Next letter</button>
-        <button className="end-button" onClick={endTurn}>End Turn</button>
-        <button className="reset-button" onClick={resetGame}>Reset game</button>
-        <button className="reset-button" onClick={handleLearnRules}>Learn The Rules</button>
       </div>
 
       <div className="radio-buttons">
@@ -143,13 +132,33 @@ export default function App() {
           />
           Random Letters
         </label>
+        <label>
+          <input 
+            type="checkbox"
+            checked={playingWithTimer}
+            onChange={() => setPlayingWithTimer(!playingWithTimer)}
+            name="playWithTimerBtn"
+          />Play With Timer
+        </label>
+        {playingWithTimer && (
+          <select onChange={(e) => setTimerLength(parseInt(e.target.value))} value={timerLength}>
+            <option value="10">10 seconds</option>
+            <option value="15">15 seconds</option>
+            <option value="30">30 seconds</option>
+          </select>
+        )}
+      </div>
+
+      <div className="buttons">
+        <button className="add-button" onClick={handleAddLetter}>Next letter</button>
+        <button className="end-button" onClick={endTurn}>End Turn</button>
       </div>
 
       <h1 className="display-letters">{displayLetters}</h1>
-
-      <div className="display-rules">{displayRules && <h2>{rulesMessage}</h2>}</div>
-
-      <div className="display-timer">Time Remaining: {timer}</div>
+      <div className="display-timer">{playingWithTimer && <h2>Time Remaining: {timer}</h2>}</div>
+      <button className="reset-button" onClick={resetGame}>Reset game</button>
+      <button className="reset-button" onClick={handleLearnRules}>Learn The Rules</button>
+      <div className="display-rules">{displayRules && <h2 className="rules-message">{rulesMessage}</h2>}</div>
     </div>
   );
 }
